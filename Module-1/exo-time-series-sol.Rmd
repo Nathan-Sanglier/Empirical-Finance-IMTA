@@ -66,7 +66,6 @@ plot(ts.zc, main='Rendement quotidien - Zodiac Aerospace')
 
 Obtenir le même graphique avec un titre du CAC40. Présentez un graphique de prix et un autre de rendement quotidien.
 
-
 On liste tous les tickers du CAC40:
 
 ```{r, tickers-cac40, echo=TRUE}
@@ -139,18 +138,20 @@ $$
 
 cette application vérifie les axiomes des espaces métriques:
 
+```{=tex}
 \begin{align}
 & d_{ij} = 0 \iff i = j \\
 & d_{ij} = d_{ji} \\
 & d_{ij} \leq d_{ik} + d_{kj}
 \end{align}
-
+```
 ```{r, cluster, echo=TRUE}
 distance <- as.dist(sqrt(2*(1-cor.stocks)))
 
 clusters <- hclust(distance)
 plot(clusters)
 ```
+
 ```{r, correlation-plot}
 idx <- clusters$order
 w <- cor.stocks[idx, idx]
@@ -162,17 +163,14 @@ ggcorrplot(w, type="lower", tl.cex=8)
 
 On distingue assez nettement quelques "clusters":
 
-- L'industrie pétrolière (FP, ENI)
-- Les producteurs d'électricité (RWE, EON)
-- Le secteur banque/assurance (ISP, GLE, UCG,  etc. )
-- le secteur automobile/industrie (SIE, DAI, BMW, etc.)
-
-
+-   L'industrie pétrolière (FP, ENI)
+-   Les producteurs d'électricité (RWE, EON)
+-   Le secteur banque/assurance (ISP, GLE, UCG, etc. )
+-   le secteur automobile/industrie (SIE, DAI, BMW, etc.)
 
 # Exercice 3
 
-On sélectionne des séries NASDAQ avec au moins 7 ans de données, et on calcule le rendement annuel moyen.
-Executez le code pas à pas pour comprendre ce que font \texttt{sapply}. Notez aussi l'utilisation de l'option \texttt{cache=TRUE}} pour éviter un re-calcul assez long.
+On sélectionne des séries NASDAQ avec au moins 7 ans de données, et on calcule le rendement annuel moyen. Executez le code pas à pas pour comprendre ce que font \texttt{sapply}. Notez aussi l'utilisation de l'option \texttt{cache=TRUE}} pour éviter un re-calcul assez long.
 
 ```{r, nasdaq, echo=TRUE, cache=TRUE}
 min.length = 252*7
@@ -204,4 +202,3 @@ knitr::kable(rbind(head(sorted.good.df, 10), tail(sorted.good.df,10)),
              digits=1, booktab=TRUE, row.names=FALSE)
 
 ```
-

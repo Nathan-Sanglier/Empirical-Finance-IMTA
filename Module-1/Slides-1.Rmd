@@ -112,12 +112,17 @@ p <- quotes$AMZN['2004-12-31/']
 
 chartSeries(p[100:110,], type="bars")
 ```
+Barre à gauche = valeur d'entrée, bare à droite = valeur de sortie
+barre orange --> perte
+
 
 ## Daily Return - AMZN
 
 \[
 r_t = \log\left(\frac{P_t}{P_{t-1}}\right)
 \]
+
+!! $P_t$ désigne ici l'adjusted close.
 
 ```{r daily-return, include=FALSE, echo=FALSE}
 return_series <- ROC(price_series, n=1, na.pad=FALSE)
@@ -126,6 +131,13 @@ return_series <- ROC(price_series, n=1, na.pad=FALSE)
 ```{r plot-return, fig.height=5}
 plot(return_series$AMZN, col="red", main = "Daily return")
 ```
+
+## Daily Return - AMZN - COMMENTS
+
+on peut voir beaucoup de rendements avec des valeurs assez élevées (ici c'est particulier, normalement, on a pas mal de rendements avec des valeurs assez négatives)  --> fat tails
+La volatilité n'a pas l'air stationnaire (périodes de vola élevée suivies de périodes de vola faible)
+
+
 
 ## Histogram of daily return - AMZN
 
@@ -136,7 +148,7 @@ hist(r.AMZN, breaks=40, freq=FALSE, main='')
 rug(r.AMZN)
 curve(dnorm(x, mean=mean(r.AMZN), sd=sd(r.AMZN)), add=TRUE, col='red', lwd=3, xaxt='n')
 ```
-
+On peut voir qu'on a pas mal de valeurs extrêmes
 
 ## Analysis of return distribution - AMZN
 
@@ -145,6 +157,12 @@ qqnorm(as.vector(r.AMZN),main=NULL)
 qqline(as.vector(r.AMZN),col='red', lwd=2)
 ```
 
+## Analysis of return distribution - COMMENTS
+
+QQ-Plot (on calcule un certain nb de quantiles qu'on peut définir)
+En rouge c'est si les sample quantiles correspondaient aux quantiles théoriques de la loi normale.
+Un quantile 1% c'est la valeur tq 1% des valeurs de la distribution sont en-dessous de celle-ci.
+Ici, on observe un décrochagedes quantiles inférieurs wrt ceux théoriques, ex: la valeur tq 1% des valeurs sont en-dessous est plus basse, i.e.on a plus d'extrêmes négatifs (fat tails). Même observation pour les quantiles supérieurs.
 
 ## Moments of daily returns
 
@@ -164,6 +182,11 @@ rownames(mo) <- symbols
 kable(mo, "latex", booktabs=T)
 ```
 
+## Moments of daily returns - COMMENTS
+
+On peut voir que ya pas mal de skew < 0, i.e. on a pas mal de valeurs extrêmes négatives (negative skew, i.e. mean left to median left to mode whereas everything is equal in gaussian). skew = moment centré réduit d'ordre 3.
+kurtosis non-normalisé = moment centré d'ordre 4 (kurt = 3 pour un gaussienne) --> on observe des kurt bien > 3, i.e. les valeurs sont beaucoup plus concentrées autour de la moyenne
+
 ## Autocorrelation of Returns (AMZN)
 
 
@@ -174,12 +197,17 @@ acf(abs(r.AMZN), ylim=c(0, .6), main='autocorrelation of |r(t)|')
 par(op)
 ```
 
+## Autocorrelation of Returns - COMMENTS
+
+On peut voir que y'a pas beaucoup de corrélation entre les daily returns, mais c'est beaucoup plus significatif entre les valeurs absolues des daily returns !! En gros ca confirme notre hypothèse de persistance de la vola : ya des périodes de forte vola dpnc grosses valeurs abs de returns et des périodes de faible vola.
 
 ## Rescaling daily return by $\sigma(r_{t-1})$ [@Chen-2008]
 
 $$
 z_t = \frac{r_t}{\sigma(|r_{t-1}|)}
 $$
+L'idée c'est de rescale les daily returns non pas en fonction de la vola totale des returns mais de la vola calculée sur une partie des returns : les returns qui, au jour précédent, ont eu le même ordre de grandeur de returns que le return qu'on traite actuellement.
+
 
 The density of $z_t$ can be approximated by a power law. See paper for details of calculation.
 
@@ -201,6 +229,10 @@ params = list(lambda=0.94, nb.init=250)
 ticker <- 'AMZN'
 plot.cum.cond.r(r=r.AMZN, ticker = ticker, sgn='all',NBIN=nb, model='abs', params=params)
 ```
+
+## Rescaling of daily return by $\sigma(|r_{t-1}|)$ - COMMENTS
+
+Ici, on a séparé les abs(returns) en 8 bins, et en gros on voit qu'on a quasi les mêmes densités de probas pour chaque bin (cdf dans l'autre sens, genre P(X>x)) donc c'est un bon point. Bon par contre ca marche pas pour tous les stocks.
 
 ## Unconditional distribution of return
 
@@ -249,7 +281,7 @@ t2 = substitute(paste(
 hist(r.AMZN,freq=FALSE,breaks=40, main=t2)
 plot(function(x)dJohnson(x,johnson.fit),-.1,.1,col='red', lwd=3,add=TRUE)
 ```
-
+Les daily returns ont l'air de plus suivre une Johnson SU distribution plutôt que juste une gaussian.
 
 ## Fitted Johnson SU distribution - AMZN (3)
 
@@ -274,6 +306,7 @@ qqnorm(r.AMZN, main="Normal")
 qqline(r.AMZN)
 par(op)
 ```
+Effectivement, le QQ Plot est beaucoup mieux.
 
 ## Correlation between assets (NASDAQ)
 
@@ -283,7 +316,11 @@ tickers <- get.tickers(folder)[1:150]
 ts.all <- get.all.ts(folder, tickers, dt.start = dmy('01Mar2007'), combine = TRUE)
 ```
 
+<<<<<<< Updated upstream
 ```{r, cor-1, echo=FALSE, message=FALSE}
+=======
+```{r, cor-1, echo=FALSE, cache=FALSE, warning=FALSE, message=FALSE, cache=TRUE}
+>>>>>>> Stashed changes
 nb.ev = 6
 nb.obs <- 252
 
@@ -296,6 +333,9 @@ cor.NASDAQ <- cor(ts.all[idx,])
 corrplot(cor.NASDAQ, type="upper", order="hclust", tl.pos='n')
 ```
 
+## Correlation between assets (NASDAQ) - COMMENTS
+
+Tous les assets ne sont pas corrélés, y'a l'air d'y avoir un clustering possible (cf exos).
 
 ## Correlation between assets
 
@@ -306,7 +346,7 @@ tickers <- get.tickers(folder)[1:150]
 ts.all <- get.all.ts(folder, tickers, dt.start = dmy('01Mar2007'), combine = TRUE)
 ```
 
-```{r, cor-3, echo=FALSE}
+```{r, cor-3, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE}
 nb.ev = 6
 nb.obs <- 252
 
@@ -337,13 +377,17 @@ large.ev.2 <- norm.ev[1:nb.ev]
 names(large.ev.2) <- paste("PC", seq_along(large.ev.2))
 ```
 
-```{r, cor-4, echo=FALSE, fig.height=5}
+```{r, cor-4, echo=FALSE, fig.height=5, cache=FALSE, warning=FALSE, message=FALSE, cache=TRUE}
 plot.1 <- barplot(100*large.ev.1, ylim=c(0,60), col="blue", ylab="Contribution (%)",
                   main="First PCs of 150 NASDAQ stocks, August 2009")
 lines(plot.1, 100*cumsum(large.ev.1), type='b', pch=5, col="red", lty=2)
 legend("right", legend=c("Contribution ratio", "cumulative contribution"),
        col=c("blue", "red", "green"), lty=1:3, cex=0.8)
 ```
+
+## Correlation between assets - COMMENTS
+
+On peut voir que les returns des actifs du NASDAQ étaient tous majoritairment influencés par un seul facteur en 2009, ce qui est dû la crise des subprimes. Effectivmement, on était dans les retombées de celle ci. Donc là on voit que la diversification ca marche que quand on en a pas besoin mdr (ici ils ont tous subis la crise).
 
 ## Correlation between assets
 
@@ -354,6 +398,7 @@ lines(plot.2, 100*cumsum(large.ev.2), type='b', pch=5, col="red", lty=2)
 legend("right", legend=c("Contribution ratio", "cumulative contribution"),
        col=c("blue", "red"), lty=1:2, cex=0.8)
 ```
+Quelques années plus tard, le 1er facteur a moins d'importance, dû à l'atténuation des effets de la crise et que les entreprises saines ont réussi à se redresser.
 
 ## How many dimensions in a market?
 
@@ -383,6 +428,7 @@ legend("right", legend=c("Eigenvalue", "Significance level"), col=c("blue", "red
 minor.tick(ny=2)
 
 ```
+En 2009, on observe 1 ou 2 dimensions importantes au sein du NASDAQ (la première eigenval est trop haute, on peut pas la voir)
 
 ## How many dimensions in a market?
 
@@ -408,6 +454,8 @@ legend("right", legend=c("Eigenvalue", "Significance level"), col=c("blue", "red
        lty=c(NA, 1), pch=c(1, NA))
 minor.tick(ny=2)
 ```
+En 2013, on pourrait dire 2 à 4 facteurs.
+
 
 ## Summary
 
