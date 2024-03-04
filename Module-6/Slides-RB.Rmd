@@ -7,7 +7,6 @@ output:
     colortheme: dolphin
     theme: Montpellier
   slidy_presentation: default
-
 header-includes:
   - \usepackage[utf8]{inputenc}
   - \usepackage{graphicx}
@@ -27,9 +26,10 @@ header-includes:
   - \usepackage{makecell}
   - \usepackage{xcolor}
   - \usepackage{xfrac}
-
-
 bibliography: ../library.bib
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
@@ -80,17 +80,19 @@ source(file.path(get.src.folder(), 'FileUtils.R'))
 
 ## Mesures de risque cohérente
 
-+ Croissance: $X>Y \Rightarrow \mathcal{R}(X) \geq \mathcal{R}(Y)$
-+ Invariance: $\mathcal{R}(X+k) = \mathcal{R}(X)$
-+ Homogénéité: $\lambda \in R_+ \Rightarrow \mathcal{R}(\lambda X) = \lambda \mathcal{R}(X)$
-+ Convexité: $\lambda \in [0,1] \Rightarrow \mathcal{R}(\lambda X + (1-\lambda)Y) \leq \lambda\mathcal{R}(X) + (1-\lambda) \mathcal{R}(Y)$
+-   Croissance: $X>Y \Rightarrow \mathcal{R}(X) \geq \mathcal{R}(Y)$
+-   Invariance: $\mathcal{R}(X+k) = \mathcal{R}(X)$
+-   Homogénéité:
+    $\lambda \in R_+ \Rightarrow \mathcal{R}(\lambda X) = \lambda \mathcal{R}(X)$
+-   Convexité:
+    $\lambda \in [0,1] \Rightarrow \mathcal{R}(\lambda X + (1-\lambda)Y) \leq \lambda\mathcal{R}(X) + (1-\lambda) \mathcal{R}(Y)$
 
 ## Théorème de décomposition d'Euler
 
-Soit $f(X), X \in R^n$ homogène de degré 1: $f(\lambda X) = \lambda f(X)$
+Soit $f(X), X \in R^n$ homogène de degré 1:
+$f(\lambda X) = \lambda f(X)$
 
-Alors:
-\begin{equation}
+Alors: \begin{equation}
 \begin{aligned}
 f(X) & = \sum_i x_i \frac{\partial f(X)}{\partial x_i} \\
  &= X^T \nabla_X f
@@ -101,25 +103,26 @@ f(X) & = \sum_i x_i \frac{\partial f(X)}{\partial x_i} \\
 
 Soit $\mathcal{RM}_p(w)$ une mesure cohérente du risque:
 
-+ $\mathsf{CMR}_i$ Contribution marginale au risque de l'actif $i$: $\frac{\partial \mathcal{RM}_p(w)}{\partial w_i}$
-+ $\mathsf{CR}_i$ Contribution au risque de l'actif $i$: $w_i \mathsf{CMR}_i$
-+ Décomposition du risque
-\begin{equation}
-\begin{aligned}
-\mathcal{RM}_p(w) &= \sum_i w_i \mathsf{CMR}_i \\
-&= \sum_i \mathsf{CR}_i
-\end{aligned}
-\end{equation}
-+ Contribution relative au risque (CRR):
-\begin{equation}
-\begin{aligned}
-1 &= \sum_i w_i \frac{\mathsf{CMR}_i}{\mathcal{RM}_p(w)} \\
-&= \sum_i \mathsf{CRR}_i
-\end{aligned}
-\end{equation}
+-   $\mathsf{CMR}_i$ Contribution marginale au risque de l'actif $i$:
+    $\frac{\partial \mathcal{RM}_p(w)}{\partial w_i}$
+-   $\mathsf{CR}_i$ Contribution au risque de l'actif $i$:
+    $w_i \mathsf{CMR}_i$
+-   Décomposition du risque \begin{equation}
+    \begin{aligned}
+    \mathcal{RM}_p(w) &= \sum_i w_i \mathsf{CMR}_i \\
+    &= \sum_i \mathsf{CR}_i
+    \end{aligned}
+    \end{equation}
+-   Contribution relative au risque (CRR): \begin{equation}
+    \begin{aligned}
+    1 &= \sum_i w_i \frac{\mathsf{CMR}_i}{\mathcal{RM}_p(w)} \\
+    &= \sum_i \mathsf{CRR}_i
+    \end{aligned}
+    \end{equation}
 
 ## Exemple
 
+```{=tex}
 \begin{equation}
 \begin{aligned}
 \mathcal{RM}_p(x) &= (w^T \Sigma w)^{\sfrac{1}{2}} \\
@@ -127,9 +130,10 @@ Soit $\mathcal{RM}_p(w)$ une mesure cohérente du risque:
 &= w^T \nabla_w \mathcal{RM}_p(w)
 \end{aligned}
 \end{equation}
-
+```
 ## Exemple
 
+```{=tex}
 \begin{equation}
 \begin{aligned}
 \mathcal{RM}_p(w) &= (w^T \Sigma w)^{\sfrac{1}{2}} \\
@@ -138,33 +142,31 @@ Soit $\mathcal{RM}_p(w)$ une mesure cohérente du risque:
 &= \frac{\Sigma w}{\sqrt{w^T \Sigma w}}
 \end{aligned}
 \end{equation}
-
-
+```
 ## Exemple
 
-+ $\mathsf{CMR}_i$ Contribution marginale au risque de l'actif $i$: $\frac{(\Sigma w)_i}{\sqrt{w^T \Sigma w}}$
-+ Décomposition du risque
-\begin{equation}
-\begin{aligned}
-\mathcal{RM}_p(w) &= \sum_i w_i \frac{(\Sigma w)_i}{\sqrt{w^T \Sigma w}}
-\end{aligned}
-\end{equation}
+-   $\mathsf{CMR}_i$ Contribution marginale au risque de l'actif $i$:
+    $\frac{(\Sigma w)_i}{\sqrt{w^T \Sigma w}}$
+-   Décomposition du risque \begin{equation}
+    \begin{aligned}
+    \mathcal{RM}_p(w) &= \sum_i w_i \frac{(\Sigma w)_i}{\sqrt{w^T \Sigma w}}
+    \end{aligned}
+    \end{equation}
 
 ## Utilité en gestion des risques
 
-+ Impact d'un changement d'allocation
-\begin{equation}
-\begin{aligned}
-\Delta \mathcal{RM}_p(w) &= \sum_i \Delta \bar{w}_i \mathsf{CMR}_i \\
-& \sum_i \Delta \bar{w}_i = 0
-\end{aligned}
-\end{equation}
-+ Impact de l'ajout $\Delta w_i$ de titres en portefeuille
-\begin{equation}
-\begin{aligned}
-\Delta \mathcal{RM}_p(w) &= \sum_i \Delta w_i \mathsf{CMR}_i \\
-\end{aligned}
-\end{equation}
+-   Impact d'un changement d'allocation \begin{equation}
+    \begin{aligned}
+    \Delta \mathcal{RM}_p(w) &= \sum_i \Delta \bar{w}_i \mathsf{CMR}_i \\
+    & \sum_i \Delta \bar{w}_i = 0
+    \end{aligned}
+    \end{equation}
+-   Impact de l'ajout $\Delta w_i$ de titres en portefeuille
+    \begin{equation}
+    \begin{aligned}
+    \Delta \mathcal{RM}_p(w) &= \sum_i \Delta w_i \mathsf{CMR}_i \\
+    \end{aligned}
+    \end{equation}
 
 ## Lien avec $\beta$
 
@@ -172,17 +174,17 @@ $$
 R_p(\bar{w}) = \sum_i \bar{w}_i R_i
 $$
 
+```{=tex}
 \begin{definition}
 Le $\beta$ d'un titre $i$ par rapport au portefeuille est défini par:
 $$
 \beta_i = \frac{\mathrm{Cov}(R_i, R_p(w))}{\mathrm{Var}(R_p(w))}
 $$
 \end{definition}
-
+```
 ## Lien avec $\beta$
 
-Si la mesure de risque est $\sigma_p(w)$, alors
-\begin{equation}
+Si la mesure de risque est $\sigma_p(w)$, alors \begin{equation}
 \begin{aligned}
 \mathsf{CMR}_i &= \frac{\partial \sigma_p(w)}{\partial w_i} \\
 &= \frac{(\Sigma w)_i}{\sigma_p(w)} \\
@@ -220,11 +222,11 @@ $\sigma_p(w)$ = `r round(sigma.p,3)`
 
 ## Exemple (suite)
 
-+ Modification de l'allocation: $w^T = (.532, .276, .192)$
-\begin{align}
-\Delta \sigma_p(w) &= \mathsf{CMR}^T (w^* - w) \\
-&= -0.03
-\end{align}
+-   Modification de l'allocation: $w^T = (.532, .276, .192)$
+    \begin{align}
+    \Delta \sigma_p(w) &= \mathsf{CMR}^T (w^* - w) \\
+    &= -0.03
+    \end{align}
 
 ```{r}
 sigma <- diag(Sigma)
@@ -237,6 +239,7 @@ df <- data.frame(sigma=sigma, w=w, CMR=CMR, CR=CR, CRR=CRR)
 names(df) <- c("$\\sigma_i$", "$w$", "CMR", "CR", "CRR")
 kable(df, format="latex", booktabs=T, digits=3, escape=FALSE)
 ```
+
 $\sigma_p(w)$ = `r round(sigma.p,3)`
 
 ## Risk Parity & Budgeting
@@ -263,8 +266,7 @@ $$
 
 $$
 \Omega = \sqrt{\mbox{diag}(\Sigma)}
-$$
-\begin{align}
+$$ \begin{align}
 w &= \frac{\Omega^{-1}}{1^T \Omega^{-1}} \\
 w_i &= \frac{\sfrac{1}{\sigma_i}}{\sum_i \sfrac{1}{\sigma_i} }
 \end{align}
@@ -292,7 +294,6 @@ save(monthly.ret, file='monthly.ret.rda')
 load(monthly.ret.file)
 ```
 
-
 ```{r, echo=TRUE}
 Sigma <- cov(monthly.ret)
 mu <- colMeans(monthly.ret)
@@ -313,10 +314,11 @@ barplotPortfolioRisk(w_all, Sigma)
 
 Solution numérique du problème "risk parity".
 
-Contribution au risque de l'actif $i$: $w_i \frac{(\Sigma w)_i}{w^T \Sigma w}$
+Contribution au risque de l'actif $i$:
+$w_i \frac{(\Sigma w)_i}{w^T \Sigma w}$
 
-1.  Calculer les poids $w_i$ de la solution RP en résolvant un
-programme du type:
+1.  Calculer les poids $w_i$ de la solution RP en résolvant un programme
+    du type:
 
 $$
 \begin{aligned}
@@ -327,9 +329,10 @@ $$
   \end{aligned}
 $$
 
-+ Formuler la fonction objectif $f(w)$
-+ Résoudre le problème avec le librarie NlcOptim
+-   Formuler la fonction objectif $f(w)$
+-   Résoudre le problème avec le librarie NlcOptim
 
-2.  Calculer la solution d'une seconde manière, en résolvant un système d'équations non-linéaires à l'aide de la librairie lneqslv.
+2.  Calculer la solution d'une seconde manière, en résolvant un système
+    d'équations non-linéaires à l'aide de la librairie lneqslv.
 
-$$
+\$\$

@@ -16,7 +16,7 @@ header-includes:
   - \usepackage{amsfonts}
   - \usepackage{amssymb}
 ---
-  
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 library(NlcOptim)
@@ -63,42 +63,95 @@ delta = 2.5
 Pi = delta * Sigma %*% w.eq
 ```
 
-
 ```{r}
 asset.names = c('Australia','Canada','France','Germany','Japan','UK','USA')
 Table2 = cbind(asset.names, round(cbind(stdevs, w.eq, Pi) * 100,1))
 colnames(Table2) = c('Assets','Std Dev','Weq','PI')
-kable(Table2, format='latex', booktabs=T)
+#kable(Table2, format='latex', booktabs=T)
+Table2
 ```
 
 # Questions
 
 ## Calculer une allocation telle que les contributions au risque du portefeuille sont idfentiques pour tous les titres (optimisation non-linéaire).
 
+```{r}
+library(riskParityPortfolio)
 
-Formulez le problème d'optimisation non-linéaire correspondant. Définissez la fonction objectif et la matrice de contraintes, puis utilisez solnl pour
-obtenir la solution.
+```
+
+```{r}
+
+alloc <- riskParityPortfolio(Sigma)
+alloc
+```
+
+```{r}
+N = length(asset.names)
+w_init <- rep(1/N, N)
+
+objective_f <- function(w) {
+  
+  result <- 0
+  for (j in 1:(N-1)) {
+      result <- result + (w[j] * (Sigma %*% w)[j] - w[j+1] * (Sigma %*% w)[j+1])^2
+  }
+  return(1000 * result)
+}
+
+constraint_f <- function(w) {
+  
+  return(list(ceq = sum(w) - 1, c=NULL))
+}
+```
+
+```{r}
+result <- solnl(X = w_init,
+                objfun = objective_f,
+                confun = constraint_f
+                )
+```
+
+```{r}
+result$par
+```
+
+Formulez le problème d'optimisation non-linéaire correspondant. Définissez la fonction objectif et la matrice de contraintes, puis utilisez solnl pour obtenir la solution.
 
 ## Exprimer les conditions d'optimalité du problème précédent, et résoudre directement ces équations par la méthode de Newton.
-
 
 La condition du premier ordre pour la parité risque est:
 
 $$
 w_i \frac{\partial \sigma_P}{\partial w_i} = w_j \frac{\partial \sigma_P}{\partial w_j} = \lambda
-$$
-Ecrire le système d'équations non-linéaires à résoudre, et utiliser la fonction
-nleqslv pour obtenir une solution.
+$$ Ecrire le système d'équations non-linéaires à résoudre, et utiliser la fonction nleqslv pour obtenir une solution.
+
+```{r}
+obj_func <- function(w, lambda) {
+  
+  y <- matrix(0, nrow = n+1, ncol = 1)
+  
+  for (i in 1:n) {
+    y[i, 1] <- (Sigma %*% w)[i] * w[i] - lambda
+  }
+  
+  y[n + 1, 1] <- sum(w) - 1
+  
+  return(y)
+}
+```
+
+```{r}
+nleqslv(w_init, y)
+```
 
 ## Comparaison d'un portefeuille tangent et d'un portefeuille "risk budgeting"
 
-Lire la vignette de la librairie "riskParityPortfolio" 
-https://cran.r-project.org/web/packages/riskParityPortfolio/vignettes/RiskParityPortfolio.html
+Lire la vignette de la librairie "riskParityPortfolio" <https://cran.r-project.org/web/packages/riskParityPortfolio/vignettes/RiskParityPortfolio.html>
 
 A partir de l'exemple: "A pratical example using FAANG price data", comparer par un backtest les performances et la composition d'un portefeuille tangent et d'un portefeuille "risk parity". Utiliser le dataset "monthly returns".
 
 Ajouter des contraintes au portefeuille tangent:
 
-+ Poids $<=$ 20%
-+ Secteur Technologie $<=$ 30%
-
+-   Poids $<=$ 20%
+-   Secteur Technologie $<=$ 30%
