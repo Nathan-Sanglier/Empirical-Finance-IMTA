@@ -9,10 +9,12 @@ output:
     fig_caption: yes
     latex_engine: pdflatex
 geometry: margin=1in
-
 header-includes:
   - \usepackage[utf8]{inputenc}
   - \usepackage{eurosym}
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
@@ -36,30 +38,44 @@ library(kableExtra)
 library(quadprog)
 ```
 
-
 # Relative Price Change (MPP)
 
-Calculate the percentage price change for 4 bonds with different annual coupon
-rates (5\% and 10\%) and different maturities (3 years and 10 years), 
-starting with
-a common 7.5\% YTM (with annual compounding frequency), 
-and assuming successively a new yield of 5\%, 7\%, 7.49\%, 7.51\%, 8\% and 10\%.
+Calculate the percentage price change for 4 bonds with different annual
+coupon rates (5% and 10%) and different maturities (3 years and 10
+years), starting with a common 7.5% YTM (with annual compounding
+frequency), and assuming successively a new yield of 5%, 7%, 7.49%,
+7.51%, 8% and 10%.
+
+Let $q_1, q_2$ be the quantities of bonds 1 and 2. \begin{eqnarray*}
+95000 &=& 40 q_1 + 165 q_2 \\
+60000 &=& 240 q_1
+\end{eqnarray*}
+
+Therefore,
+
+```{r, echo=TRUE}
+q1 <- 60000/240
+q2 <- (95000 - 40*q1)/165
+```
 
 # Treasury Bond
 
-Suppose that the Treasury department issues a new 2-year bond that settles today
-and matures in exactly 2 years. It has a yield of 6\% and a coupon rate of 6\%.
-Coupon frequency and compounding frequency are assumed to be semiannual.
-There are 182 days in the first coupon period. Answer the following questions.
+Suppose that the Treasury department issues a new 2-year bond that
+settles today and matures in exactly 2 years. It has a yield of 6% and a
+coupon rate of 6%. Coupon frequency and compounding frequency are
+assumed to be semiannual. There are 182 days in the first coupon period.
+Answer the following questions.
 
+```{=tex}
 \begin{enumerate}
 \item What is the price of the bond?
 \item What is the accrued interest?
 \item What is the duration and modified duration?
-\end{enumerate}  
-
+\end{enumerate}
+```
 # Duration
 
+```{=tex}
 \begin{enumerate}
   \item Find the duration of a 10 year, $8\%$ bond trading at par.
 \item Analytical formula for duration.
@@ -76,30 +92,34 @@ There are 182 days in the first coupon period. Answer the following questions.
 \]
 \end{enumerate}
 \end{enumerate}
-
+```
 # Cash flow matching
-  
-Suppose the price is \$212 for a 2-year coupon bond with face of \$200 and an
-annual coupon (first one is one year from now) of \$40. 
-Suppose also that the price
-is \$150 for a 1-year coupon bond with face of \$150 and an annual coupon (one
-remaining, one year from now) of \$15.
 
-Remaining pension benefits in a plan having two more years to go are \$95,000
-one year from now and \$60,000 two years from now. 
+Suppose the price is \$212 for a 2-year coupon bond with face of \$200
+and an annual coupon (first one is one year from now) of \$40. Suppose
+also that the price is \$150 for a 1-year coupon bond with face of \$150
+and an annual coupon (one remaining, one year from now) of \$15.
 
+Remaining pension benefits in a plan having two more years to go are
+\$95,000 one year from now and \$60,000 two years from now.
+
+```{=tex}
 \begin{enumerate}
 \item What replicating portfolio of the two coupon bonds covers the pension liabilities exactly? 
   \item What is the price of the replicating portfolio?
   \end{enumerate}
-  
+```
 # Bond dedication
-  
-In this problem, we construct a bond portfolio that generates a cash flow stream that matches a liability.
 
-Assume that you must pay the amounts summarized in table~\ref{tab:liability}. You can invest in a portfolio of 5 bonds described in table~\ref{tab:bonds-2}.
+In this problem, we construct a bond portfolio that generates a cash
+flow stream that matches a liability.
 
-  \begin{table}[h]
+Assume that you must pay the amounts summarized in
+table\~\ref{tab:liability}. You can invest in a portfolio of 5 bonds
+described in table\~\ref{tab:bonds-2}.
+
+```{=tex}
+\begin{table}[h]
     \centering
     \begin{tabular}{ll}
     Year & Cash Flow \\
@@ -113,9 +133,9 @@ Assume that you must pay the amounts summarized in table~\ref{tab:liability}. Yo
     \caption{Liability cash flow stream}
     \label{tab:liability}
   \end{table}
-
-
-  \begin{table}[h]
+```
+```{=tex}
+\begin{table}[h]
     \centering
     \begin{tabular}{llll}
     Bond & Maturity & Coupon & Yield \\
@@ -129,41 +149,49 @@ Assume that you must pay the amounts summarized in table~\ref{tab:liability}. Yo
     \caption{Available bonds for dedication}
     \label{tab:bonds-2}
   \end{table}
-
-At every period, we can re-invest excess cash flow at a rate of $.02$, but cannot borrow.
+```
+At every period, we can re-invest excess cash flow at a rate of $.02$,
+but cannot borrow.
 
 Let's define the following notation:
 
+```{=tex}
 \begin{description}
 \item[$q_i$] quantity of bond $i$
 \item[$C(t)$] cash balance at time $t$
   \item[$F_i(t)$] cash flow from 1 unit of bond $i$ at time $t$.    
 \end{description}
+```
+The purpose of the problem is to determine $q_i, i \in {A, B, C, D}$ and
+$C(t), t=0, \ldots, 4$. The cash balance at end of year 5, $C(5)$ should
+be 0.
 
-The purpose of the problem is to determine $q_i, i \in {A, B, C, D}$ and $C(t), t=0, \ldots, 4$. The cash balance at end of year 5, $C(5)$ should be 0.
-
+```{=tex}
 \begin{enumerate}
   \item Write the accounting identity defining the cash-flow balance at each period (i.e. the balance between the money received and the money paid out). 
     \item Write the constrains on the variables $q_i$ and $C(t)$.
 \item Your goal is to minimize the cost of this dedication strategy. Write the corresponding objective function.
 \item Use the linprog package in R to solve the problem
 \end{enumerate}
-
-
+```
 # Reinvestment Risk and Market Risk
-  
-Consider a 3-year standard bond with a 6\% YTM and a 100 \euro\ face value, which
-delivers a 10\% coupon rate. Coupon frequency and compounding frequency are
-assumed to be annual. Its price is 110.69 \euro\ and its duration is equal to 2.75. We assume that YTM changes instantaneously to become 5\%, 5.5\%, 6.5\% or 7\% and
-stays at this level during the life of the bond. Whatever the change in this YTM,
-show that the sum of the bond price and the reinvested coupons after 2.75 years
-is always the same.
+
+Consider a 3-year standard bond with a 6% YTM and a 100 \euro face
+value, which delivers a 10% coupon rate. Coupon frequency and
+compounding frequency are assumed to be annual. Its price is 110.69
+\euro and its duration is equal to 2.75. We assume that YTM changes
+instantaneously to become 5%, 5.5%, 6.5% or 7% and stays at this level
+during the life of the bond. Whatever the change in this YTM, show that
+the sum of the bond price and the reinvested coupons after 2.75 years is
+always the same.
 
 # Duration Hedging
 
-An investor holds 100,000 units of bond A whose features are summarized in the
-following table. He wishes to be hedged against a rise in interest rates by selling some bond H.
+An investor holds 100,000 units of bond A whose features are summarized
+in the following table. He wishes to be hedged against a rise in
+interest rates by selling some bond H.
 
+```{=tex}
 \begin{table}[ht]
   \centering
   \begin{tabular}{llllll}
@@ -175,10 +203,11 @@ H & 20 & 10 & 8 & 9.87 & 119.792 \\
 \bottomrule
 \end{tabular}
 \end{table}
-
+```
 Coupon frequency and compounding frequency are assumed to be semiannual.
-YTM stands for yield to maturity. The YTM curve is flat at an 8\% level.
+YTM stands for yield to maturity. The YTM curve is flat at an 8% level.
 
+```{=tex}
 \begin{enumerate}
   \item What is the quantity of the hedging instrument H that the investor has to sell?
 \item We suppose that the YTM curve increases instantaneously by 0.1\%.
@@ -189,15 +218,17 @@ YTM stands for yield to maturity. The YTM curve is flat at an 8\% level.
   \item Same question as the previous one when the YTM curve increases instantaneously by 2\%.
 \item Conclude.
 \end{enumerate}
-
-What is the quantity of the hedging instrument H that the investor has to sell?
+```
+What is the quantity of the hedging instrument H that the investor has
+to sell?
 
 # Rich-Cheap Bond Strategy
-  
-A trader implements a duration-neutral strategy that consists in buying a cheap
-bond and selling a rich bond. Today, the
-rich and cheap bonds have the following characteristics:
 
+A trader implements a duration-neutral strategy that consists in buying
+a cheap bond and selling a rich bond. Today, the rich and cheap bonds
+have the following characteristics:
+
+```{=tex}
 \begin{table}[ht]
   \centering
   \begin{tabular}{llll}
@@ -209,10 +240,8 @@ Cheap & 12 & 5.5 & 7.55 \\
 \bottomrule
 \end{tabular}
 \end{table}
-
-Coupon frequency and compounding frequency are assumed to be annual. Face
-value is 100 \euro\  for the two bonds.
+```
+Coupon frequency and compounding frequency are assumed to be annual.
+Face value is 100 \euro  for the two bonds.
 
 Compute the PV01 of the two bonds and find the hedged position.
-
-  

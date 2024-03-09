@@ -59,11 +59,51 @@ Z & 200 &     & 500 &     & 300 \\
   \item Compute the present value of each stream at a compounded rate of 14\%.
 \end{enumerate}
 
+```{r}
+df = data.frame(
+  "W" = c(100, 200, 200, 300, 300),
+  "X" = c(600, 0, 0, 0, 0),
+  "Y" = c(0, 0, 0, 0, 1200),
+  "Z" = c(200, 0, 500, 0, 300)
+)
+
+r_fut = 0.10
+r_pres = 0.14
+
+func_futval <- function(col) {
+  sum(col * (1 + r_fut)^(rev(0:length(col)-1)))
+}
+
+func_presval <- function(col) {
+  sum(col / (1 + r_pres)^(1:length(col)))
+}
+
+```
+
+```{r, warning=FALSE}
+fut_df = apply(df, MARGIN=2, FUN=func_futval)
+fut_df
+```
+
+```{r}
+pres_df = apply(df, MARGIN=2, FUN=func_presval)
+pres_df
+```
+
 
 # Comparing contracts (Van Horne)
 
 On a contract, you have a choice of receiving 25,000 \euro in six years or 50,000 \euro in 12 years. At which compound annual rate would you be indifferent between the two options?
 
+$\frac{FV_{12Y}}{(1+r)^6} = FV_{6Y} \Leftrightarrow r = \left( \frac{FV_{12Y}}{FV_{6Y}} \right)^{\frac{1}{6}} - 1$
+
+```{r}
+FV_12Y = 50000
+FV_6Y = 25000
+
+r_eq=  (FV_12Y / FV_6Y)^(1/6) - 1
+r_eq
+```
 
 # Mortgage (Van Horne)
 
@@ -74,12 +114,44 @@ You obtain a 10-year, 50,000 \euro\  loan. The compound annual interest rate is 
 \item How much total interest will be paid over the life of the loan?
 \end{enumerate}
 
+```{r}
+FV = 50000
+r = 0.08
+nb_years = 10
+annuity = 7451.74
+
+principal_1 = annuity - FV*r
+principal_1
+```
+```{r}
+total_int = annuity * nb_years - FV
+total_int
+```
+
 # Savings Plan
 
 You need to have 50,000 \euro\  at the end of ten years. To accumulate this sum, you plan to save a certain amount at the end of each year, for the next ten years. The bank pays 8\% interest, compounded annually. How much should you save each year?
 
+$P \sum_{i=1}^{n} (1+r)^i = FV \Leftrightarrow P \frac{(1+r)^n-1}{r}=FV \Leftrightarrow P = FV \frac{r}{(1+r)^n-1}$
+
+```{r}
+P = FV * r / ((1 + r)^nb_years - 1)
+P
+```
 
 # Mortgage Paydown
 
 You have borrowed 14,300 \euro\  at a compound annual interest rate of 15\%. You can make annual payments of 3,000 \euro\  on your loan. How long will it be before your loan is completely paid down?
+
+$P \sum_{i=1}^{n} \frac{1}{\left(1+r\right)^i} = FV \Leftrightarrow P \frac{1+r}{r} \left(1 - \frac{1}{\left(1+r\right)^n}\right) = FV \Leftrightarrow n = \frac{\ln\left(1 - \frac{FV r}{P \left(1 + r\right)}\right)}{\ln\left(\frac{1}{1 + r}\right)}$
+
+```{r}
+FV = 14300
+r = 0.15
+P = 3000
+
+n = log(1 - FV * r / (P * (1 + r))) / log(1 / (1 + r))
+n
+```
+
 
