@@ -58,10 +58,46 @@ On se propose de calculer les charactéristiques des trois instruments de réfé
 Par définition, le Straddle est valorisé à la volatilité BS.
 Ecrire une fonction qui calcule la valeur du straddle en fonction du sous-jacent et de la volatilité.
 
+```{r}
+straddle <- function(spot, vol) {
+  
+  c = GBSOption("c", spot, S.0, T, r, b, vol)@price
+  p = GBSOption("p", spot, S.0, T, r, b, vol)@price
+  return (c+p)
+}
+```
+
+
 ## Risk reversal
 
 - Calculer le strike d'un call et d'un put ayant un $\Delta$ de .25 en valeur absolue.
 - Ecrire une fonction qui calcule la valeur du risk-reversal en fonction du sous-jacent et de la volatilité.
+
+```{r}
+
+f_root_call <- function(K, vol) {
+  GBSGreeks("delta", 'c', S.0, K, T, r, b, vol) - 0.25
+}
+
+f_root_put <- function(K, vol) {
+  GBSGreeks("delta", 'p', S.0, K, T, r, b, vol) + 0.25
+}
+
+strike_call = uniroot(function(K) f_root_call(K, sigma), c(0, 200))$root
+strike_put = uniroot(function(K) f_root_put(K, sigma), c(0, 200))$root
+print(strike_call)
+print(strike_put)
+```
+
+```{r}
+
+risk_reversal <- function(spot, vol) {
+  
+  c = GBSOption("c", spot, strike_call, T, r, b, vol)@price
+  p = GBSOption("p", spot, strike_put, T, r, b, vol)@price
+  return (p - c)
+}
+```
 
 
 ## Butterfly
@@ -77,6 +113,37 @@ avec: $C$: call .25 $\Delta$, $P$: put .25 $\Delta$, $S$: ATM straddle.
 - Ecrire une fonction qui calcule la valeur du butterfly en fonction du sous-jacent et de la volatilité.
 
 
+```{r}
+
+f_root_beta <- function(beta, spot, vol) {
+  
+  vega_c = GBSGreeks("vega", 'c', spot, strike_call, T, r, b, vol)
+  vega_p = GBSGreeks("vega", 'p', spot, strike_put, T, r, b, vol)
+  
+  vega_c_strad = GBSGreeks("vega", 'c', spot, S.0, T, r, b, vol)
+  vega_p_strad = GBSGreeks("vega", 'c', spot, S.0, T, r, b, vol)
+  
+  return (beta * (vega_c + vega_p) - (vega_c_strad + vega_p_strad))
+}
+
+beta_val = uniroot(function(beta) f_root_beta(beta, S.0, sigma), c(-10, 10))$root
+print(beta_val)
+```
+
+```{r}
+
+butterfly <- function(spot, vol) {
+  
+  c = GBSOption("c", spot, strike_call, T, r, b, vol)@price
+  p = GBSOption("p", spot, strike_put, T, r, b, vol)@price
+  strad = straddle(spot, vol)
+  
+  return (beta_val * (c + p) - strad)
+}
+```
+
+
+
 ## Indicateurs de risque
 
 Calculez les indicateurs de risque vega, vanna, volga pour ces trois instruments:
@@ -89,4 +156,9 @@ Calculez les indicateurs de risque vega, vanna, volga pour ces trois instruments
 
 Construire la matrice des indicateurs ci-dessus pour les trois instruments de couverture (Straddle, Risk Riversal, Butterfly) et observer la structure de la matrice. Montrer comment cette structure permet 
 un calcul approximatif de la couverture VV.
+
+```{r}
+
+```
+
 

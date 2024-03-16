@@ -97,6 +97,7 @@ Calculer la densité $p(S_T)$ en utilisant la formule de Breeden-Litzenberger.
 Le résultat sera une fonction 
 
 ```{r}
+<<<<<<< Updated upstream
 d2CdK2 <- function(K, vol.f) {
 dK <- 1.e-4
 (1/dK^2) * 
@@ -150,3 +151,81 @@ digital.payoff <- function(K) {
 
 prix.digital.bs <- 
 }
+=======
+d2CdK2 <- function(vol_func, K) {
+  
+  Delta_K = 1.e-4
+  c1 = GBSOption('c', S, K-Delta_K, T, r, b, vol_func(K-Delta_K))@price
+  c2 = GBSOption('c', S, K, T, r, b, vol_func(K))@price
+  c3 = GBSOption('c', S, K+Delta_K, T, r, b, vol_func(K+Delta_K))@price
+  
+  return((c1 - 2*c2 + c3) / Delta_K^2)
+}
+```
+
+```{r}
+bs.pdf <- function(K) {
+  d2CdK2(bsVol, K) * exp(r*T)
+}
+
+smile.pdf <- function(K) {
+  d2CdK2(smileVol, K) * exp(r*T)
+}
+```
+
+```{r}
+integrate(bs.pdf, 0, Inf)$value
+```
+```{r}
+integrate(smile.pdf, 1, 500)
+```
+
+
+
+```{r}
+
+res_density_bs = matrix(nrow=length(KRange), ncol=1)
+res_density_smile = matrix(nrow=length(KRange), ncol=1)
+
+for(i in 1:length(KRange)) {
+  res_density_bs[i] = bs.pdf(KRange[i])
+  res_density_smile[i] = smile.pdf(KRange[i])
+}
+
+res_density_bs = res_density_bs / sum(res_density_bs)
+res_density_smile = res_density_smile / sum(res_density_smile)
+```
+
+```{r}
+plot(KRange, res_density_bs, type='l', col='blue', ylab="density", xlab="K")
+lines(KRange, res_density_smile, col='red')
+legend('topright', c("bs", "smile"), lty=c(1,1), col=c('blue', 'red'))
+```
+
+```{r}
+integrate()
+```
+
+
+
+
+## Valorisation de call digitaux strike=140
+
+Valoriser un call digital en dehors de l'argent ($K=105$), en utilisant la distribution lognormale (Black-Scholes) et la distribution implicite dérivée du smile.
+
+```{r}
+K = 105
+integrate(bs.pdf, K, 500)$value
+```
+```{r}
+integrate(smile.pdf, K, 700, subdivisions = 100)$value
+```
+
+
+
+
+
+
+
+
+>>>>>>> Stashed changes
