@@ -115,4 +115,29 @@ twoord.plot(lx=t, ly=zc.int, rx=t, ry=vol.int, xlab="Time (Yr)",
 
 4. Géneraliser la mise en oeuvre pour pouvoir construire un arbre de $n$ pas, et d'incrément $\Delta t$.
 
+```{r}
+obj <- function(x) {
+  r.d <- x[1]
+  r.u <- r.d * x[2]
+  res <- numeric(2)
+  res[1] <- df(z[1]) * (1/2) * (df(r.u) + df(r.d)) - df(z[2]) **2
+  res[2] <- (1/2) * log(r.u/r.d) - beta[2]*sqrt(1)
+  res
+}
+
+sol <- nleqslv(as.vector(c(.1, 1)), obj)
+r.d <- sol$x[1]
+r.u <- r.d * sol$x[2]
+```
+
+```{r}
+new_obj <- function(x) {
+  
+  alpha <- 
+}
+
+```
+
+
+
 

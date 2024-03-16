@@ -44,13 +44,69 @@ source(file.path(get.src.folder(), 'FileUtils.R'))
 
 ```{r, warning=FALSE, message=FALSE}
 library(lubridate)
-library(fExoticOptions)
+library(fOptions)
 library(kableExtra)
 library(ggplot2)
 library(stats)
 library(nleqslv)
 library(reshape)
 ```
+
+
+
+
+
+
+
+
+
+
+```{r}
+zc = 0.11
+r0 = 0.10
+beta = 0.19
+dt = 1
+
+func_to_solve <- function(x) {
+  r_u = x[1]
+  r_d = x[2]
+  
+  p_u = 100 / (1 + r_u)
+  p_d = 100 / (1 + r_d)
+  
+  sys_val = numeric(2)
+  
+  sys_val[1] = 0.5 * (p_u + p_d) / (1 + r0) - 100 / (1 + zc)^2
+  sys_val[2] = 0.5 * log(r_u / r_d) - beta * sqrt(dt)
+  
+  return(sys_val)
+}
+
+res = nleqslv(as.vector(c(0.05, 0.05)), func_to_solve)
+res$x
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Dans cet exercice, on teste la méthode Derman-Zou pour ajuster et rendre risque-neutre une distribution empirique. Utiliser l'algorithme contenu dans la note de cours pour calculer les $q_i$.
 
@@ -62,7 +118,30 @@ En effectuant un tirage avec remise dans la serie des rendements quotidiens.
 
 - Afficher la distribution empirique.
 
-- Calculer l'espérance de rendement et la volatilité. 
+- Calculer l'espérance de rendement et la volatilité.
+
+```{r}
+ts.ac <- get.ts(folder="SBF120", ticker="ac.pa")
+nb.samples <- 500
+nb.months <- 3
+nb.days <- 22
+boot.samples <- matrix(sample(ts.ac, size=nb.samples*nb.days*nb.months, replace=TRUE), nb.samples, nb.days*nb.months)
+quarterly.means <- apply(boot.samples,1,sum)
+adj = 1
+eps <- .2 * diff(range(quarterly.means))
+dens <- density(quarterly.means, adjust = adj, from=min(quarterly.means)-eps, to=max(quarterly.means)+eps,
+                n=500)
+dens <- data.frame(x=dens$x, y=dens$y)
+```
+
+```{r}
+ggplot(data=data.frame(x=quarterly.means), aes(x)) + 
+    geom_density(adjust=adj, colour="blue", alpha=0.7) +
+    geom_line(data=dens, aes(x=x, y=cumsum(y)/sum(y)), linewidth=0.7, colour='grey30') +
+    stat_ecdf(colour="red", linewidth=0.6, alpha=0.6) +
+    theme_classic() + xlab("3M return")
+```
+
 
 
 ## Nouvelle information
@@ -70,6 +149,18 @@ En effectuant un tirage avec remise dans la serie des rendements quotidiens.
 Le taux sans risque est 2%. Le spot est $S_0 = 100$.   Incorporer les informations suivantes et observez à chaque fois l'effet sur la distribution ajustée.
 
 1. Le straddle ATM est valorisé avec la volatilité empirique.
+
+```{r}
+S.0 <- 100
+K <- 100
+TTM = 3/12
+r = .02
+sigma = .3
+riskfree.df <- exp(-r*TTM)
+s <- GBSOption(TypeFlag="c", S=S.0, X=K,Time=TTM, r=r, b=r, sigma=sigma)@price +
+  GBSOption(TypeFlag="p", S=S.0, X=K,Time=TTM, r=r, b=r, sigma=sigma)@price
+```
+
 
 2. Le call 110 a une volatilité implicite égale à la volatilité empirique + 1%
 
