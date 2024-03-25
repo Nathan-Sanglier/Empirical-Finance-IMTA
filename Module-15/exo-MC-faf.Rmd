@@ -37,10 +37,177 @@ Dans cet exercice, on se propose d'étudier le fond à formule dont la descripti
 
 ## Vérifiez votre calcul en valorisant une option Européenne.
 
+
+```{r}
+process.evolve <- function(S.t, z, r, sigma, dt) {
+  S.t * exp((r - sigma^2 / 2) * dt + sigma * sqrt(dt) * z)
+}
+```
+
+
+```{r}
+generate.paths <- function(nb.steps, nb.paths, r, sigma, maturity, S.0) {
+  
+  Z = rnorm(nb.steps * nb.paths)
+  Z = matrix(Z, nrow = nb.paths, ncol = nb.steps)
+  
+  paths = matrix(nrow = nb.paths, ncol = nb.steps+1)
+  paths[,1] = S.0
+  
+  dt = maturity / nb.steps
+  
+  for (t in 2:(nb.steps+1)) {
+    
+    # paths[,t] = paths[,t-1] * exp((r - sigma^2 / 2) * dt + sigma * sqrt(dt) * Z[,t-1])
+    paths[,t] = process.evolve(paths[,t-1], Z[,t-1], r, sigma, dt)
+  }
+  
+  return (paths)
+}
+```
+
+
+```{r}
+payoff.pv.call.vanilla <- function(S.T, K, r, maturity) {
+  pmax(S.T - K, 0) * exp(-r*maturity)
+}
+```
+
+
+```{r}
+S.0 = 100
+r = 0.03
+sigma = 0.3
+
+K = 100
+maturity = 1
+
+nb.paths = 1000
+nb.steps = 100
+```
+
+
+```{r}
+res = generate.paths(nb.steps, nb.paths, r, sigma, maturity, S.0)
+array.S_T = res[,ncol(res)]
+array.price = apply(matrix(array.S_T, nrow = 1), 1, function(S.T) payoff.pv.call.vanilla(S.T, K, r, maturity))
+```
+
+
+```{r}
+mean.price = mean(array.price)
+stdev.price = sd(array.price) / sqrt(nb.paths)
+
+print(mean.price)
+print(stdev.price)
+```
+
 ## Valoriser le Fond à Formule.
+
+```{r}
+payoff.pv.faf <- function(array.S.t, r) {
+  
+  if (array.S.t[1] >= 100) {
+    payoff.pv = 107 * exp(-r)
+    exercise.date = 1
+  }
+  else if (array.S.t[2] >= 100) {
+    payoff.pv = 114 * exp(-r * 2)
+    exercise.date = 2
+  }
+  else if (array.S.t[3] >= 100) {
+    payoff.pv = 121 * exp(-r * 3)
+    exercise.date = 3
+  }
+  else if (array.S.t[4] >= 100) {
+    payoff.pv = 128 * exp(-r * 4)
+    exercise.date = 4
+  }
+  else if (array.S.t[5] >= 100) {
+    payoff.pv = 135 * exp(-r * 5)
+    exercise.date = 5
+  }
+  else if (array.S.t[6] >= 100) {
+    payoff.pv = 142 * exp(-r * 6)
+    exercise.date = 6
+  }
+  else {
+    payoff.pv = array.S.t[6] * exp(-r * 6)
+    exercise.date = 6
+  }
+  
+  return (list(value=payoff.pv, index=exercise.date))
+}
+```
+
+```{r}
+S.0 = 100
+r = 0.03
+sigma = 0.3
+
+maturity = 6
+
+nb.paths = 3
+nb.steps = 6
+```
+
+```{r}
+res = generate.paths(nb.steps, nb.paths, r, sigma, maturity, S.0)
+res = res[,2:ncol(res)]
+array.price = apply(res, 1, function(array.S.t) payoff.pv.faf(array.S.t, r))
+```
+
+```{r}
+apply(res, 1, function(array.S.t) payoff.pv.faf(array.S.t, r))
+```
+
+
+```{r}
+mean.price = mean(array.price)
+stdev.price = sd(array.price) / sqrt(nb.paths)
+
+print(mean.price)
+print(stdev.price)
+```
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## Calculer la valeur du fond pour des volatilité de 20% à 40%
+
+```{r}
+array.sigma = seq(0.2, 0.4, length.out = 80)
+
+array.mean.prices = rep(NA, 80)
+
+for (i in 1:80) {
+  
+  res = generate.paths(nb.steps, nb.paths, r, array.sigma[i], maturity, S.0)
+  res = res[,2:ncol(res)]
+  array.price = apply(res, 1, function(array.S.t) payoff.pv.faf(array.S.t, r))
+  array.mean.prices[i] = mean(array.price)
+}
+
+plot(array.sigma, array.mean.prices, type='l')
+```
+
 
 Rechercher quelle était la volatilité de l'indice (VSTOXX) à l'époque de l'émission. Conclure.
 
