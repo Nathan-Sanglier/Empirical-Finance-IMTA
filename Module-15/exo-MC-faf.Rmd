@@ -102,6 +102,36 @@ print(mean.price)
 print(stdev.price)
 ```
 
+
+```{r}
+delta.call.vanilla <- function(S.T, K, S.0, r, maturity) {
+  
+  if (S.T > K) {
+    return (exp(-r * maturity) * S.T / S.0)
+  } else {
+    return (0)
+  }
+}
+```
+
+
+```{r}
+array.delta = sapply(array.S_T, function(S.T) delta.call.vanilla(S.T, K, S.0, r, maturity))
+
+mean.delta = mean(array.delta)
+mean.delta
+```
+```{r}
+
+for 
+
+```
+
+
+
+
+
+
 ## Valoriser le Fond à Formule.
 
 ```{r}
@@ -136,7 +166,7 @@ payoff.pv.faf <- function(array.S.t, r) {
     exercise.date = 6
   }
   
-  return (list(value=payoff.pv, index=exercise.date))
+  return (cbind(payoff.pv, exercise.date))
 }
 ```
 
@@ -147,18 +177,27 @@ sigma = 0.3
 
 maturity = 6
 
-nb.paths = 3
+nb.paths = 10000
 nb.steps = 6
 ```
+
 
 ```{r}
 res = generate.paths(nb.steps, nb.paths, r, sigma, maturity, S.0)
 res = res[,2:ncol(res)]
-array.price = apply(res, 1, function(array.S.t) payoff.pv.faf(array.S.t, r))
+res.payoff = apply(res, 1, function(array.S.t) payoff.pv.faf(array.S.t, r))
 ```
 
+
 ```{r}
-apply(res, 1, function(array.S.t) payoff.pv.faf(array.S.t, r))
+array.price = res.payoff[1,]
+array.exercise.date = res.payoff[2,]
+```
+
+
+```{r}
+probas.date = table(array.exercise.date) / nb.paths
+probas.date
 ```
 
 
@@ -169,8 +208,58 @@ stdev.price = sd(array.price) / sqrt(nb.paths)
 print(mean.price)
 print(stdev.price)
 ```
-```{r}
 
+```{r}
+price.call.digital <- function(S.0, K, r, sigma, maturity) {
+  d = (log(S.0/K) - (r - sigma^2 / 2) * maturity) / (sigma * sqrt(maturity))
+  return (pnorm(d))
+}
+```
+
+
+```{r}
+payoff.pv.call.digital <- function(S.T, K, r, maturity) {
+  tmp = S.T >= 100
+  return (tmp * exp(-r * maturity))
+}
+```
+
+
+```{r}
+array.S_T = res[,ncol(res)]
+array.price.call.digital = apply(matrix(array.S_T, nrow = 1), 1, function(S.T) payoff.pv.call.digital(S.T, K, r, maturity))
+```
+
+
+```{r}
+mean.price.call.digital = mean(array.price.call.digital)
+theo.price.call.digital = price.call.digital(S.0, K, r, sigma, maturity)
+print(mean.price.call.digital)
+print(theo.price.call.digital)
+```
+
+
+```{r}
+reg = lm(array.price ~ array.price.call.digital)
+reg
+```
+
+
+```{r}
+new.price = mean.price + reg$coefficients[-1] * (mean.price.call.digital - theo.price.call.digital)[1]
+print(mean.price)
+print(new.price)
+```
+```{r}
+length(new.price)
+```
+
+
+
+
+
+```{r}
+length(array.price)
 ```
 
 
